@@ -17,7 +17,8 @@ public:
 private:
 	void openMetaDataEd();
 	void jumpToLetter();
-	
+	void jumpToRandom();	
+
 	MenuComponent mMenu;
 
 	typedef OptionListComponent<char> LetterList;

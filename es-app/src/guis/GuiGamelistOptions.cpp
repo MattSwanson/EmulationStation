@@ -2,6 +2,8 @@
 #include "GuiMetaDataEd.h"
 #include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
+#include <stdlib.h>
+#include <time.h>
 
 GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : GuiComponent(window), 
 	mSystem(system), 
@@ -50,6 +52,13 @@ GuiGamelistOptions::GuiGamelistOptions(Window* window, SystemData* system) : Gui
 	row.addElement(std::make_shared<TextComponent>(mWindow, "EDIT THIS GAME'S METADATA", Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
 	row.addElement(makeArrow(mWindow), false);
 	row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::openMetaDataEd, this));
+	mMenu.addRow(row);
+
+	row.elements.clear();
+	row.addElement(std::make_shared<TextComponent>(mWindow, "RANDOM GAME",
+		Font::get(FONT_SIZE_MEDIUM), 0x777777FF), true);
+	row.addElement(makeArrow(mWindow), false);
+	row.makeAcceptInputHandler(std::bind(&GuiGamelistOptions::jumpToRandom, this));
 	mMenu.addRow(row);
 
 	// center the menu
@@ -115,6 +124,21 @@ void GuiGamelistOptions::jumpToLetter()
 
 	gamelist->setCursor(files.at(mid));
 
+	delete this;
+}
+
+void GuiGamelistOptions::jumpToRandom()
+{
+	IGameListView* gamelist = getGamelist();
+	
+	const std::vector<FileData*>& files = gamelist->getCursor()->getParent()->getChildren();
+	int size = files.size();
+	
+	srand (time(NULL));
+	int r = rand() % size;
+
+	gamelist->setCursor(files.at(r));	
+	ViewController::get()->launch(files.at(r));
 	delete this;
 }
 
