@@ -8,6 +8,7 @@
 #include "guis/GuiSettings.h"
 #include "guis/GuiScraperStart.h"
 #include "guis/GuiDetectDevice.h"
+#include "views/gamelist/IGameListView.h"
 #include "views/ViewController.h"
 
 #include "components/ButtonComponent.h"
@@ -33,6 +34,29 @@ GuiMenu::GuiMenu(Window* window) : GuiComponent(window), mMenu(window, "MAIN MEN
 	// [version]
 
 	auto openScrapeNow = [this] { mWindow->pushGui(new GuiScraperStart(mWindow)); };
+	addEntry("RANDOM", 0x777777FF, true,
+		[this]{
+		int sys_len = SystemData::sSystemVector.size();
+		srand (time(NULL));
+		SystemData* sys;
+		std::string rp ("retropie");
+		int valsys = 0;
+		while(valsys != 1)
+		{
+			int rand_sys = rand() % sys_len;
+			sys = SystemData::sSystemVector.at(rand_sys);
+			valsys = rp.compare(sys->getName());	// Will be one if the systems name is not retropie
+			std::cout << sys->getName();
+		}
+		ViewController::get()->goToGameList(sys);
+		IGameListView* gamelist = ViewController::get()->getGameListView(sys).get();
+		const std::vector<FileData*>& files = gamelist->getCursor()->getParent()->getChildren();
+		int game_len = files.size();
+		int rand_game = rand() % game_len;
+		gamelist->setCursor(files.at(rand_game));
+		ViewController::get()->launch(files.at(rand_game));
+		delete this;	
+	});
 	addEntry("SCRAPER", 0x777777FF, true, 
 		[this, openScrapeNow] { 
 			auto s = new GuiSettings(mWindow, "SCRAPER");
